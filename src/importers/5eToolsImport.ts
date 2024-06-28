@@ -67,10 +67,11 @@ export async function build5eMonsterFromFile(file: File): Promise<Monster[]> {
                 const imported: Monster[] = [];
                 for (const monster of monsters) {
                     try {
+            const name: string = monster.name;
                         const importedMonster: Monster = {
-                            image: null,
+              image: await getImage(monster.hasToken, monster.source, name),
                             bestiary: true,
-                            name: monster.name,
+              name: name,
                             source: getSource(monster),
                             type: getType(monster.type),
                             subtype: getSubType(monster.type),
@@ -183,6 +184,29 @@ function getType(type: Creature5eTools["type"]) {
         return type;
     }
     return type.type;
+}
+
+async function getImage(
+  hasToken: Creature5eTools["hasToken"],
+  source: string | string[],
+  name: Creature5eTools["name"]
+) {
+  if (!hasToken || !source || !name) return;
+  if (typeof source == "string") source = Array(source);
+  const imageURL = `https://5e.tools/img/bestiary/tokens/${source[0]}/${name}.webp`;
+  let isValidImage = await validImageURL(imageURL);
+  if (isValidImage) return encodeURI(imageURL);
+}
+
+async function validImageURL(url: string) {
+  return fetch(url)
+    .then((res) => res.blob())
+    .then((buff) => {
+      return buff?.type?.startsWith("image/");
+    })
+    .catch((error) => {
+      return false;
+    });
 }
 
 function getSubType(type: Creature5eTools["type"]) {

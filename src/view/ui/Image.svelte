@@ -87,7 +87,7 @@
         on:click={(evt) => open(evt)}
         on:mouseenter={(evt) => popover(evt)}
     >
-        <img src={image} alt={monster.name} />
+        <img src={image} alt={monster.name} onerror="this.remove()" />
     </div>
 {/if}
 
